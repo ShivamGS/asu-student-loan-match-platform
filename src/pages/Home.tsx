@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calculator, TrendingUp, Shield, Clock, ChevronDown, Sparkles, HelpCircle } from 'lucide-react';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { calculateRetirementMatch } from '../utils/calculator';
 import { CalculatorInputs, CalculatorResults } from '../types';
 import PersonalizedInsights from '../components/PersonalizedInsights';
@@ -46,13 +47,66 @@ export default function Home() {
     }));
   };
 
-  // Calculate comparison data when results exist
-  const withoutMatchBalance = results
-    ? results.totalEmployeeContribution * 10 * 1.07
+  // Calculate comparison data when results exist - FIXED CALCULATION
+  const withoutMatchBalance = results && inputs.monthly401kContribution > 0
+    ? (() => {
+        const rate = 0.07;
+        const years = 10;
+        const annualContribution = inputs.monthly401kContribution * 12;
+        let balance = 0;
+        
+        for (let year = 0; year < years; year++) {
+          balance = (balance + annualContribution) * (1 + rate);
+        }
+        
+        return balance;
+      })()
     : 0;
+
   const withMatchBalance = results ? results.projectedBalance10Year : 0;
   const difference = withMatchBalance - withoutMatchBalance;
   const percentageIncrease = withoutMatchBalance > 0 ? (difference / withoutMatchBalance) * 100 : 0;
+
+  // Calculate chart data
+  const lineChartData = results ? Array.from({ length: 11 }, (_, i) => {
+    const year = i;
+    const rate = 0.07;
+    
+    const withoutMatchYearly = inputs.monthly401kContribution * 12;
+    const withoutMatchFV = year === 0 ? 0 : withoutMatchYearly * (((1 + rate) ** year - 1) / rate) * (1 + rate);
+    
+    const withMatchYearly = (inputs.monthly401kContribution * 12) + results.eligibleMatchAmount;
+    const withMatchFV = year === 0 ? 0 : withMatchYearly * (((1 + rate) ** year - 1) / rate) * (1 + rate);
+    
+    return {
+      year,
+      withoutMatch: Math.round(withoutMatchFV),
+      withMatch: Math.round(withMatchFV),
+    };
+  }) : [];
+
+  // Calculate investment growth for donut chart
+  const investmentGrowth = results 
+    ? results.projectedBalance10Year - results.totalEmployeeContribution - results.totalEmployerContribution
+    : 0;
+
+  const donutChartData = results ? [
+    { 
+      name: 'Your $', 
+      value: results.totalEmployeeContribution, 
+      color: '#3B82F6'
+    },
+    { 
+      name: 'ASU Match', 
+      value: results.totalEmployerContribution, 
+      color: '#FCD34D'
+    },
+    { 
+      name: 'Growth', 
+      value: investmentGrowth, 
+      color: '#10B981'
+    },
+  ].filter(item => item.value > 0) : [];
 
   const insights = [
     {
@@ -129,7 +183,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CALCULATOR SECTION */}
+      {/* CALCULATOR SECTION - ENDS AFTER CHARTS */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8">
@@ -211,7 +265,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column - Results */}
+            {/* Right Column - Results with Charts */}
             <div className="space-y-6">
               {results ? (
                 <>
@@ -222,7 +276,8 @@ export default function Home() {
                       <div className="text-2xl font-bold text-asu-gray-900 mb-1">
                         {formatCurrency(withoutMatchBalance)}
                       </div>
-                      <div className="text-xs text-asu-gray-500">Your contributions only</div>
+                      <div className="text-xs text-asu-gray-500">Total retirement balance in 10 years</div>
+                      <div className="text-xs text-asu-gray-400 mt-1">Your contributions only</div>
                     </div>
 
                     <div className="bg-gradient-to-br from-asu-maroon to-asu-maroon-dark rounded-xl p-6 border-2 border-asu-maroon shadow-lg">
@@ -230,69 +285,128 @@ export default function Home() {
                       <div className="text-2xl font-bold text-white mb-1">
                         {formatCurrency(withMatchBalance)}
                       </div>
+                      <div className="text-xs text-asu-gold mb-1">Total retirement balance in 10 years</div>
                       {withoutMatchBalance > 0 ? (
-                        <div className="text-xs text-asu-gold">
+                        <div className="text-xs text-white/90">
                           +{formatCurrency(difference)} more ({percentageIncrease.toFixed(0)}% increase)
                         </div>
                       ) : (
-                        <div className="text-xs text-asu-gold">
-                          +{formatCurrency(difference)} in free money
+                        <div className="text-xs text-white/90">
+                          {formatCurrency(results.totalEmployerContribution)} ASU contribution
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Detailed Results */}
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-asu-gray-200 space-y-4">
-                    <div className="pb-4 border-b border-asu-gray-200">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold text-asu-maroon mb-1">
-                            Free Money from ASU
-                          </div>
-                          <div className="text-xs text-asu-gray-600 leading-relaxed">
-                            ASU contributes this amount to your 401(k) based on your student loan payments
-                          </div>
-                        </div>
-                        <div className="text-right ml-4">
-                          <div className="text-2xl font-bold text-asu-maroon">
-                            {formatCurrency(results.eligibleMatchAmount)}
-                          </div>
-                          <div className="text-xs text-asu-gray-500 mt-1">
-                            {formatCurrency(results.monthlyMatchAmount)}/month
-                          </div>
-                        </div>
-                      </div>
+                  {/* Charts Section - LAST COMPONENT IN CALCULATOR */}
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    {/* Line Chart - Growth Over Time */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border border-asu-gray-200">
+                      <h3 className="text-lg font-semibold text-asu-gray-900 mb-4">10-Year Growth Projection</h3>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <LineChart data={lineChartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                          <XAxis 
+                            dataKey="year" 
+                            stroke="#6B7280"
+                            tick={{ fontSize: 12 }}
+                            label={{ value: 'Years', position: 'insideBottom', offset: -5, style: { fontSize: 12, fill: '#6B7280' } }}
+                          />
+                          <YAxis 
+                            stroke="#6B7280"
+                            tick={{ fontSize: 12 }}
+                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                          />
+                          <Tooltip
+                            contentStyle={{ 
+                              backgroundColor: 'white', 
+                              border: '1px solid #E5E7EB', 
+                              borderRadius: '8px',
+                              fontSize: '12px'
+                            }}
+                            formatter={(value: number) => formatCurrency(value)}
+                            labelFormatter={(label) => `Year ${label}`}
+                          />
+                          <Legend 
+                            wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                            iconType="line"
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="withoutMatch" 
+                            stroke="#9CA3AF" 
+                            strokeWidth={2}
+                            name="Without Match"
+                            dot={{ fill: '#9CA3AF', r: 3 }}
+                            activeDot={{ r: 5 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="withMatch" 
+                            stroke="#8C1D40" 
+                            strokeWidth={3}
+                            name="With Match"
+                            dot={{ fill: '#8C1D40', r: 4 }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      <p className="text-xs text-asu-gray-500 mt-3 text-center">
+                        Assumes 7% annual growth rate
+                      </p>
                     </div>
 
-                    <div className="pb-4 border-b border-asu-gray-200">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold text-asu-gray-900 mb-1">
-                            Your Student Loan Payments
+                    {/* Donut Chart - Balance Breakdown */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border border-asu-gray-200">
+                      <h3 className="text-lg font-semibold text-asu-gray-900 mb-4">Balance Breakdown (10 Years)</h3>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={donutChartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={90}
+                            dataKey="value"
+                          >
+                            {donutChartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ 
+                              backgroundColor: 'white', 
+                              border: '1px solid #E5E7EB', 
+                              borderRadius: '8px',
+                              fontSize: '12px'
+                            }}
+                            formatter={(value: number) => formatCurrency(value)}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      
+                      {/* Legend */}
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-3 h-3 rounded-full bg-[#3B82F6]"></div>
+                            <span className="text-xs font-medium text-asu-gray-700">Your $</span>
                           </div>
-                          <div className="text-xs text-asu-gray-600 leading-relaxed">
-                            Total amount you're paying toward loans per year
-                          </div>
+                          <p className="text-sm font-bold text-asu-gray-900">{formatCurrency(results.totalEmployeeContribution)}</p>
                         </div>
-                        <div className="text-right ml-4">
-                          <div className="text-2xl font-bold text-asu-gray-900">
-                            {formatCurrency(results.annualLoanPayments)}
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-3 h-3 rounded-full bg-[#FCD34D]"></div>
+                            <span className="text-xs font-medium text-asu-gray-700">ASU Match</span>
                           </div>
-                          <div className="text-xs text-asu-gray-500 mt-1">
-                            {formatCurrency(results.annualLoanPayments / 12)}/month
+                          <p className="text-sm font-bold text-asu-maroon">{formatCurrency(results.totalEmployerContribution)}</p>
+                        </div>
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-3 h-3 rounded-full bg-[#10B981]"></div>
+                            <span className="text-xs font-medium text-asu-gray-700">Growth</span>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-asu-gold/10 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-asu-gold rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-white font-bold text-sm">6%</span>
-                        </div>
-                        <div className="text-xs text-asu-gray-700 leading-relaxed">
-                          <span className="font-semibold">How the match works:</span> For every dollar you pay toward student loans, ASU contributes 6 cents to your retirement account. So your {formatCurrency(results.annualLoanPayments)} in loan payments earns you {formatCurrency(results.eligibleMatchAmount)} in free retirement savings!
+                          <p className="text-sm font-bold text-green-600">{formatCurrency(investmentGrowth)}</p>
                         </div>
                       </div>
                     </div>
@@ -314,36 +428,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SCROLL TEASER BANNER - ONLY SHOWN AFTER CALCULATION */}
+      {/* PERSONALIZED INSIGHTS BANNER & HOW MATCH WORKS - BELOW CALCULATOR */}
       {results && (
-        <div className="relative py-8 bg-gradient-to-r from-asu-gold/10 via-asu-gold/5 to-asu-gold/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={scrollToInsights}
-              className="w-full group cursor-pointer bg-white hover:bg-asu-gray-50 rounded-2xl p-6 shadow-lg border-2 border-asu-gold/30 hover:border-asu-gold transition-all duration-300 hover:shadow-xl"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-asu-maroon to-asu-maroon-dark rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-7 h-7 text-asu-gold animate-pulse" />
+        <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-asu-gold/10 via-asu-gold/5 to-asu-gold/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* LEFT: Personalized Insights Banner */}
+              <button
+                onClick={scrollToInsights}
+                className="group cursor-pointer bg-gradient-to-br from-asu-maroon to-asu-maroon-dark hover:from-asu-maroon-dark hover:to-asu-maroon rounded-xl p-6 shadow-lg border-2 border-asu-maroon transition-all duration-300 hover:shadow-xl text-left"
+              >
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-12 h-12 bg-asu-gold rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-white animate-pulse" />
                   </div>
-                  <div className="text-left">
-                    <h3 className="text-xl font-bold text-asu-gray-900 mb-1">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-white mb-1">
                       📊 See Your Personalized Financial Insights
                     </h3>
-                    <p className="text-sm text-asu-gray-600">
+                    <p className="text-sm text-white/80">
                       Discover what your {formatCurrency(results.eligibleMatchAmount)} annual match means for your future
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col items-center gap-1 animate-bounce">
-                  <ChevronDown className="w-8 h-8 text-asu-maroon" />
-                  <span className="text-xs font-semibold text-asu-maroon">Scroll Down</span>
+                <div className="flex items-center justify-center gap-1 mt-2">
+                  <ChevronDown className="w-5 h-5 text-asu-gold animate-bounce" />
+                  <span className="text-xs font-semibold text-asu-gold">Scroll to View Details</span>
+                </div>
+              </button>
+
+              {/* RIGHT: How ASU Match Works */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-asu-gray-200">
+                <div className="bg-asu-gold/10 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-asu-gold rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white font-bold text-base">6%</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-asu-gray-900 mb-2">How the ASU Match Works</div>
+                      <div className="text-xs text-asu-gray-700 leading-relaxed mb-3">
+                        For every dollar you pay toward student loans, ASU contributes 6 cents to your retirement account. Your <span className="font-semibold">{formatCurrency(results.annualLoanPayments)}</span> in annual loan payments earns you <span className="font-semibold text-asu-maroon">{formatCurrency(results.eligibleMatchAmount)}</span> per year in retirement savings through employer matching!
+                      </div>
+                      <div className="pt-3 border-t border-asu-gold/30 grid grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs text-asu-gray-500">Your Loan Payments</div>
+                          <div className="text-lg font-bold text-asu-gray-900">{formatCurrency(inputs.monthlyLoanPayment)}/month</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-asu-gray-500">ASU Match</div>
+                          <div className="text-lg font-bold text-asu-maroon">{formatCurrency(results.monthlyMatchAmount)}/month</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* PERSONALIZED INSIGHTS - ONLY SHOWN AFTER CALCULATION */}
@@ -370,7 +512,7 @@ export default function Home() {
                   Ready to Start Building Your Retirement?
                 </h2>
                 <p className="text-xl text-white/90 mb-8">
-                  Don't leave <span className="text-asu-gold font-bold">${results.eligibleMatchAmount}</span> per year on the table. Get started in less than 10 minutes.
+                  Take advantage of <span className="text-asu-gold font-bold">${results.eligibleMatchAmount}</span> per year in employer matching. Get started in less than 10 minutes.
                 </p>
                 
                 {/* CTA Buttons */}

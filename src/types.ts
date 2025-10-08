@@ -15,6 +15,7 @@ export interface CalculatorResults {
   eligibleMatchAmount: number;
   totalASUContribution: number;
   totalEmployeeContribution: number;
+  totalEmployerContribution: number; // ✅ ADDED - 10-year total employer match
   projectedBalance10Year: number;
   monthlyMatchAmount: number;
   matchUtilizationPercent: number;

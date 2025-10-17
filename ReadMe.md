@@ -1,9 +1,10 @@
 # ASU Student Loan Retirement Match Platform
 
-> **Fund the Future - Spark Challenge 2025**  
-> *Transforming Student Loan Payments into Retirement Savings*
-
+> **Fund the Future - Spark Challenge 2025**
 ---
+
+## Transforming Student Loan Payments into Retirement Savings
+[![Watch the video](https://img.youtube.com/vi/KOsUvwRjW88/maxresdefault.jpg)](https://www.youtube.com/watch?v=KOsUvwRjW88)
 
 ## Table of Contents
 
@@ -37,17 +38,15 @@ The ASU Student Loan Retirement Match Platform is a comprehensive web applicatio
 
 ASU employees with student loan debt often forgo retirement contributions to manage loan payments, missing out on employer matching benefits. This creates a retirement savings gap, particularly for younger employees who need compound growth most. Current systems lack user-friendly tools and fail to communicate the value of SECURE 2.0 student loan matching provisions.
 
-## Team
-
-Our team is called Bit-by-Bit. We are a group of passionate developers and designers - Pratiksha, Shivam and Achyut. We are committed to creating impactful solutions.
-
-## Deployed Website URL
-
-Here is the link to our deployed website: [ASU Student Loan Retirement Match Platform](https://main.d1yauud13ab6y4.amplifyapp.com/)
 
 ## Our Solution
 
 Our solution educates employees on SECURE 2.0 via quick calculations, visualizations, and AI insights, driving enrollment. Post-enrollment, users track retirement growth via dashboards while admins leverage data insights to optimize the program.
+
+## Team
+
+This project was architected and developed by [Pratiksha Wadibhasme](https://www.linkedin.com/in/pratikshawadibhasme/), [Shivam Sonawane](https://www.linkedin.com/in/shivam-sonawane/) and [Achyutaram Sonti](https://www.linkedin.com/in/asonti/). Thanks to the TIAA x ASU team for their guidance and support.
+
 
 ## Key Features
 
@@ -261,94 +260,45 @@ Navigate to `http://localhost:5173`
 ## Websocket API Details
 ### Websocket API for chatbot
 - **Routes**: $connect, message, $disconnect, $default
-- **Endpoint**: wss://yrorziuas2.execute-api.us-east-1.amazonaws.com/dev
-
 
 ## REST API Details
 
 ### Get all employee insights for admin
 - **Resources**:
   - `/admin/insights` - GET method 
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/insights
 
 ### Get all users for admin
 - **Resources**:
   - `/admin/users` - GET method
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/users
-- 
+
 ### Get user by asuId for admin
 - **Resources**:
   - `/admin/users/{asuId}` - GET method
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/users/{asuId}
-- 
+
 ### Get User Documents by asuId for admin
 - **Resources**:
   - `/admin/users/{asuId}/documents` - GET method
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/users/{asuId}/documents
 
 ### Get User Status by asuId for admin
 - **Resources**:
   - `/admin/users/{asuId}/status` - GET method
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/users/{asuId}/status
-- 
+
 ### Update Approval Status by asuId for admin
 - **Resources**:
   - `Update Approval Status` - POST method
-- **Endpoint**: https://sixk0qljdk.execute-api.us-east-1.amazonaws.com/prod/admin/users/{asuId}/approval
 
 ### Create Profile for Users
 - **Resources**:
   - `/user-profile` - POST method
-  - **Endpoint**: https://jfqtf39dk3.execute-api.us-east-1.amazonaws.com/dev/user-profile
 
 ### Document Extraction API
 - **Resources**:
   - `/process-documents` - POST method
-  - **Endpoint**: https://9u5m2hi0s9.execute-api.us-east-1.amazonaws.com/prod/process-documents
   - `/get-upload-urls` - POST method
-  - **Endpoint**: https://9u5m2hi0s9.execute-api.us-east-1.amazonaws.com/prod/get-upload-urls
 
 ### Calculate Match API
 - **Resources**:
   - `/calculate-match` - POST method
-  - **Endpoint**: https://z1mqi2x7o2.execute-api.us-east-1.amazonaws.com/dev/calculate-match
-
-## Key Components
-
-- Hero section with program overview
-- Interactive calculator with real-time calculations
-- Comparison cards (with vs. without match)
-- 30-year growth line chart
-- Balance breakdown donut chart
-- Personalized insights banner
-- FAQ accordion
-- User and Admin Login/Signup
-- Document upload and verification section
-- Admin dashboard with user management and analytic
-- Document extraction and processing Lambda functions
-- GenAI chatbot for financial advice
-- Document Upload for User
-- Admin User Management
-- Admin Analytics Dashboard
-- Admin Document Verification
-- Budget Tracking & Forecasting for admin
-- User Engagement Analytics for admin
-- Enrollment Trends for admin
-- Demographic Insights for admin
-- Retention Analysis for admin
-- Risk Assessment for Employees
-- Performance Metrics for admin
-
-
-## User Journey
-
-1. **Discovery:** Employee lands on homepage, sees benefit calculator
-2. **Education:** Learn about SECURE 2.0 and program benefits
-3. **Calculation:** Input salary and loan payments, see projections
-4. **Personalized Insights:** Receive AI-driven recommendations
-5. **Confidence Building:** View visualizations and AI insights
-6. **Enrollment:** Complete eligibility check and document upload
-7. **Tracking:** Access personalized dashboard post-enrollment
 
 ## Security Features
 
@@ -357,9 +307,12 @@ Navigate to `http://localhost:5173`
 - Environment variable protection
 - Input validation and sanitization
 
+## Demo Video
+
+Long Format Demo: https://youtu.be/3bX1j1JH3K4
 
 ## Acknowledgments
 
-- TIAA for sponsoring the Fund the Future Spark Challenge
+- TIAA x ASU for sponsoring the Fund the Future Spark Challenge'25
 
 ---

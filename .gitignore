@@ -1,0 +1,19 @@
+# Credentials (in any folder)
+**/credentials.json
+
+# Python virtual environments
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Lambda zipped deployments
+*.zip
+
+/backend/lambdas/financial_chatbot_advisor_v2/*
+!/backend/lambdas/financial_chatbot_advisor_v2/complete_auto_refresh_auth.py
+!backend/lambdas/financial_chatbot_advisor_v2/lambda_function.py
+lambdas/financial_chatbot_advisor_v2/*
+!lambdas/financial_chatbot_advisor_v2/*.json
+!lambdas/financial_chatbot_advisor_v2/*.py

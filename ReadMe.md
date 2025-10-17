@@ -4,7 +4,7 @@
 ---
 
 ## Transforming Student Loan Payments into Retirement Savings
-[![Video Title](https://img.youtube.com/vi/KOsUvwRjW88/0.jpg)](https://www.youtube.com/watch?v=KOsUvwRjW88)
+[![Watch the video](./preview.png)](https://www.youtube.com/watch?v=KOsUvwRjW88)
 
 ## Table of Contents
 

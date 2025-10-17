@@ -11,101 +11,109 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('🔵 [LOGIN] Form submitted');
+  e.preventDefault();
+  console.log('🔵 [LOGIN] Form submitted');
+  console.log('🔵 [LOGIN] ASU ID:', asuId);
+  console.log('🔵 [LOGIN] Password length:', password.length);
 
-    setError(null);
+  setError(null);
 
-    // Validation
-    if (!asuId.trim()) {
-      setError('Please enter your ASU ID');
-      return;
-    }
+  // Validation
+  if (!asuId.trim()) {
+    setError('Please enter your ASU ID');
+    return;
+  }
 
-    if (!/^\d{10}$/.test(asuId)) {
-      setError('ASU ID must be 10 digits');
-      return;
-    }
+  if (!/^\d{10}$/.test(asuId)) {
+    setError('ASU ID must be 10 digits');
+    return;
+  }
 
-    if (!password) {
-      setError('Please enter your password');
-      return;
-    }
+  if (!password) {
+    setError('Please enter your password');
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    try {
-      console.log('🔵 [LOGIN] Sending login request...');
+  try {
+    console.log('🔵 [LOGIN] Sending login request...');
+    
+    const requestBody = {
+      operation: 'login',
+      asuId: asuId.trim(), // Add trim to remove any whitespace
+      password: password,
+    };
+    
+    console.log('🔵 [LOGIN] Request body:', JSON.stringify(requestBody));
 
-      // Use the new Lambda endpoint with operation: login
-      const response = await fetch(
-        'https://jfqtf39dk3.execute-api.us-east-1.amazonaws.com/dev/user-profile',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            operation: 'login',
-            asuId: asuId,
-            password: password,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      console.log('📦 [LOGIN] Response:', data);
-
-      if (!response.ok) {
-        console.log('🔴 [LOGIN] Login failed:', data.error);
-        
-        // Handle specific error messages
-        if (data.message && data.message.includes('migrate')) {
-          setError('Please sign up to set a password for your account.');
-        } else {
-          setError(data.message || data.error || 'Invalid credentials');
-        }
-        setIsLoading(false);
-        return;
+    // Use the new Lambda endpoint with operation: login
+    const response = await fetch(
+      'https://jfqtf39dk3.execute-api.us-east-1.amazonaws.com/dev/user-profile',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
       }
+    );
 
-      console.log('✅ [LOGIN] Login successful');
+    const data = await response.json();
 
-      // Store user session
-      const sessionData = {
-        asuId: data.asuId,
-        approvalStatus: data.approvalStatus || 'action_required',
-        userProfile: {
-          asuId: data.asuId,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          asuEmail: data.asuEmail,
-          approvalStatus: data.approvalStatus || 'action_required',
-          salary: 0,
-          debtAmount: '',
-          interestRate: 0,
-          repaymentPeriod: '',
-        },
-        loginTime: new Date().toISOString(),
-      };
+    console.log('📦 [LOGIN] Response status:', response.status);
+    console.log('📦 [LOGIN] Response data:', data);
 
-      console.log('💾 [LOGIN] Storing session:', sessionData);
-      localStorage.setItem('currentSession', JSON.stringify(sessionData));
-
-      // Redirect based on approval status
-      const redirectPath =
-        data.approvalStatus === 'pending' || data.approvalStatus === 'action_required'
-          ? '/dashboard/documents'
-          : '/dashboard';
-
-      console.log('🚀 [LOGIN] Redirecting to:', redirectPath);
-      navigate(redirectPath, { replace: true });
-    } catch (err) {
-      console.error('❌ [LOGIN] Error:', err);
-      setError('Login failed. Please try again.');
-    } finally {
+    if (!response.ok) {
+      console.log('🔴 [LOGIN] Login failed:', data.error);
+      
+      // Handle specific error messages
+      if (data.message && data.message.includes('migrate')) {
+        setError('Please sign up to set a password for your account.');
+      } else {
+        setError(data.message || data.error || 'Invalid credentials');
+      }
       setIsLoading(false);
+      return;
     }
-  };
+
+    console.log('✅ [LOGIN] Login successful');
+
+    // Store user session
+    const sessionData = {
+      asuId: data.asuId,
+      approvalStatus: data.approvalStatus || 'action_required',
+      userProfile: {
+        asuId: data.asuId,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        asuEmail: data.asuEmail,
+        approvalStatus: data.approvalStatus || 'action_required',
+        salary: 0,
+        debtAmount: '',
+        interestRate: 0,
+        repaymentPeriod: '',
+      },
+      loginTime: new Date().toISOString(),
+    };
+
+    console.log('💾 [LOGIN] Storing session:', sessionData);
+    localStorage.setItem('currentSession', JSON.stringify(sessionData));
+
+    // Redirect based on approval status
+    const redirectPath =
+      data.approvalStatus === 'pending' || data.approvalStatus === 'action_required'
+        ? '/dashboard/documents'
+        : '/dashboard';
+
+    console.log('🚀 [LOGIN] Redirecting to:', redirectPath);
+    navigate(redirectPath, { replace: true });
+  } catch (err) {
+    console.error('❌ [LOGIN] Error:', err);
+    setError('Login failed. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gradient-to-br from-gray-50 to-gray-100">

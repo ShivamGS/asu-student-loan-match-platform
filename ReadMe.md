@@ -8,7 +8,7 @@
 
 ### 📹 Demo Video
 
-[![Watch Demo - AZNext TIAA Spark Challenge](https://img.youtube.com/vi/KOsUvwRjW88/maxresdefault.jpg)](https://www.youtube.com/watch?v=KOsUvwRjW88 "Click to watch our platform demo")
+[![Watch Demo - AZNext TIAA Spark Challenge](./preview.png)](https://www.youtube.com/watch?v=KOsUvwRjW88 "Click to watch our platform demo")
 
 *Click the thumbnail above to watch our 72-hour hackathon demo*
 

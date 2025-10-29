@@ -4,17 +4,17 @@
 
 ---
 
-## 🏆 Hackathon Winner
+## 🏆 2nd Place Winners - Team Bit by Bit
 
 <div align="center">
 
 <img src="./Hackathon_winning_screenshot.png" alt="TIAA Spark Challenge Winners" width="800"/>
 
-*Winners of the TIAA x ASU Fund the Future Spark Challenge 2025*
+*Team Bit by Bit - 2nd Place Winners of the TIAA x ASU Fund the Future Spark Challenge 2025*
 
 </div>
 
-We are proud to announce that our team won the **TIAA x ASU Fund the Future Spark Challenge 2025** with this innovative student loan retirement match platform!
+We are proud to announce that **Team Bit by Bit** secured **2nd place** at the **TIAA x ASU Fund the Future Spark Challenge 2025** with this innovative student loan retirement match platform!
 
 
 ---

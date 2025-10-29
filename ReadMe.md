@@ -4,6 +4,21 @@
 
 ---
 
+## 🏆 Hackathon Winner
+
+<div align="center">
+
+<img src="./Hackathon_winning_screenshot.png" alt="TIAA Spark Challenge Winners" width="800"/>
+
+*Winners of the TIAA x ASU Fund the Future Spark Challenge 2025*
+
+</div>
+
+We are proud to announce that our team won the **TIAA x ASU Fund the Future Spark Challenge 2025** with this innovative student loan retirement match platform!
+
+
+---
+
 ## Transforming Student Loan Payments into Retirement Savings
 
 ### 📹 Demo Video

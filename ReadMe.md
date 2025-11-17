@@ -351,7 +351,8 @@ Navigate to `http://localhost:5173`
 
 ## Demo Video
 
-Long Format Demo: https://youtu.be/3bX1j1JH3K4
+Short Format Demo: https://youtu.be/KOsUvwRjW88
+Long Format Demo: https://youtu.be/r-COsUedLag
 
 ## Acknowledgments
 
